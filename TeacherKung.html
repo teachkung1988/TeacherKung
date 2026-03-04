@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>典陸教育集團 - 資優鑑定面試評測系統</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #c0392b;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Logo 樣式 */
+        .top-logo {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .input-group {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .input-wrapper { flex: 1; margin-right: 20px; }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        /* 狀態標籤 */
+        #status-msg {
+            font-size: 0.8rem;
+            color: #27ae60;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* Module Cards */
+        .module-card {
+            background: var(--card-bg);
+            border-left: 5px solid #ccc;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .module-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Slider Styles */
+        .slider-container {
+            margin-top: 20px;
+            padding: 0 10px;
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        .range-slider:hover { opacity: 1; }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #555;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .score-display-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .current-score {
+            font-size: 2rem;
+            font-weight: bold;
+            width: 80px;
+            text-align: center;
+        }
+
+        .score-meaning {
+            flex: 1;
+            margin-left: 20px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .level-low { background-color: #fadbd8; color: #c0392b; }
+        .level-mid { background-color: #fdebd0; color: #d35400; }
+        .level-high { background-color: #d4efdf; color: #27ae60; }
+
+        /* Action Buttons */
+        .action-area {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        button.generate-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+            transition: transform 0.2s;
+        }
+
+        button.generate-btn:hover {
+            background-color: #1a252f;
+            transform: translateY(-2px);
+        }
+
+        button.clear-btn {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+            transition: transform 0.2s;
+        }
+
+        button.clear-btn:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        /* Report Section */
+        #report-section {
+            display: none;
+            margin-top: 40px;
+            background: #fff;
+            padding: 50px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .report-header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+        }
+
+        .report-block { margin-bottom: 30px; }
+
+        .report-label {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1rem;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
+            margin-bottom: 8px;
+        }
+
+        .report-content {
+            font-size: 1.05rem;
+            text-align: justify;
+            margin-left: 14px;
+        }
+
+        /* Radar Bar & Stats */
+        .stat-bar { display: flex; align-items: center; margin-bottom: 8px; }
+        .stat-label { width: 110px; font-weight: bold; font-size: 0.9rem; white-space: nowrap; }
+        .stat-track { flex: 1; height: 12px; background: #e0e0e0; border: 1px solid #999; border-radius: 5px; overflow: hidden; margin: 0 10px; }
+        .stat-fill { height: 100%; }
+        .stat-val { width: 70px; font-size: 0.95rem; color: #333; font-weight: bold; text-align: right; }
+
+        /* Print Styles */
+        @media print {
+            @page { margin: 0; size: auto; }
+            body { 
+                background: white; 
+                padding: 40px; 
+                margin: 0; 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+            }
+            .container { max-width: 100%; width: 100%; }
+            header, .input-group, .module-card, .action-area, button { display: none !important; }
+            #report-section { display: block !important; margin: 0; padding: 0; box-shadow: none; border: none; }
+            .top-logo { display: block !important; margin-bottom: 20px; }
+            .stat-bar { page-break-inside: avoid; display: flex; align-items: center; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .stat-track { background-color: #e0e0e0 !important; border: 1px solid #999 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .stat-fill { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            #bar-vci { background: #e67e22 !important; }
+            #bar-vsi { background: #8e44ad !important; }
+            #bar-fri { background: #2980b9 !important; }
+            #bar-wmi { background: #27ae60 !important; }
+            #bar-psi { background: #e74c3c !important; }
+            .report-block { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="DL NEW LOGO BN.png" alt="典陸教育集團" class="top-logo">
+
+    <header>
+        <div class="subtitle">Gifted Identification Assessment System (Full 5 Index)</div>
+    </header>
+
+    <div class="input-group">
+        <div class="input-wrapper">
+            <label for="studentName">考生姓名：</label>
+            <input type="text" id="studentName" placeholder="例如：王小明" oninput="saveToLocal()">
+        </div>
+        <div id="status-msg">✅ 已暫存</div>
+    </div>
+
+    <div class="module-card" style="border-left-color: #e67e22;">
+        <div class="module-title">
+            1. 語文理解 (VCI)
+            <span style="font-size:0.8rem; color:#e67e22;">滿分 80</span>
+        </div>
+        <div class="module-desc">
+            <strong>評分標準 (0-80)：</strong><br>
+            0-28: 表面特徵/錯誤 (反應期)<br>
+            29-63: 功能性描述/正確但具體 (功能期)<br>
+            64-80: 本質定義/後設認知 (抽象期)
+        </div>
+        <div class="slider-container">
+            <input type="range" min="0" max="80" value="40" class="range-slider" id="vci-slider" oninput="updateScore('vci', this.value); saveToLocal();" style="background: linear-gradient(to right, #e67e22 0%, #e67e22 50%, #d3d3d3 50%);">
+            <div class="score-display-area">
+                <span class="current-score" id="vci-val" style="color:#e67e22;">40</span>
+                <span class="score-meaning level-mid" id="vci-meaning">功能期 (Functional)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-card" style="border-left-color: #8e44ad;">
+        <div class="module-title">
+            2. 視覺空間 (VSI)
+            <span style="font-size:0.8rem; color:#8e44ad;">滿分 80</span>
+        </div>
+        <div class="module-desc">
+            <strong>評分標準 (0-80)：</strong><br>
+            0-28: 依賴網格線索/無法轉換視角<br>
+            29-63: 需嘗試錯誤/具體操作方能解題<br>
+            64-80: 無線索完形/多角度心理旋轉
+        </div>
+        <div class="slider-container">
+            <input type="range" min="0" max="80" value="40" class="range-slider" id="vsi-slider" oninput="updateScore('vsi', this.value); saveToLocal();" style="background: linear-gradient(to right, #8e44ad 0%, #8e44ad 50%, #d3d3d3 50%);">
+            <div class="score-display-area">
+                <span class="current-score" id="vsi-val" style="color:#8e44ad;">40</span>
+                <span class="score-meaning level-mid" id="vsi-meaning">操作期 (Operational)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-card" style="border-left-color: #2980b9;">
+        <div class="module-title">
+            3. 工作記憶 (WMI)
+            <span style="font-size:0.8rem; color:#27ae60;">滿分 80</span>
+        </div>
+        <div class="module-desc">
+            <strong>評分標準 (0-80)：</strong><br>
+            0-28: 容量溢出/無法複述<br>
+            29-63: 分段執行/需輔助策略<br>
+            64-80: 內在操作/精確重組
+        </div>
+        <div class="slider-container">
+            <input type="range" min="0" max="80" value="40" class="range-slider" id="wmi-slider" oninput="updateScore('wmi', this.value); saveToLocal();" style="background: linear-gradient(to right, #27ae60 0%, #27ae60 50%, #d3d3d3 50%);">
+            <div class="score-display-area">
+                <span class="current-score" id="wmi-val" style="color:#27ae60;">40</span>
+                <span class="score-meaning level-mid" id="wmi-meaning">分段期 (Segmented)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-card" style="border-left-color: #27ae60;">
+        <div class="module-title">
+            4. 流體推理 (FRI)
+            <span style="font-size:0.8rem; color:#2980b9;">滿分 80</span>
+        </div>
+        <div class="module-desc">
+            <strong>評分標準 (0-80)：</strong><br>
+            0-28: 僅單一維度/遺漏規則 (單維期)<br>
+            29-63: 需逐步推導/序列處理 (序列期)<br>
+            64-80: 多工平行處理/瞬間解題 (平行期)
+        </div>
+        <div class="slider-container">
+            <input type="range" min="0" max="80" value="40" class="range-slider" id="fri-slider" oninput="updateScore('fri', this.value); saveToLocal();" style="background: linear-gradient(to右, #2980b9 0%, #2980b9 50%, #d3d3d3 50%);">
+            <div class="score-display-area">
+                <span class="current-score" id="fri-val" style="color:#2980b9;">40</span>
+                <span class="score-meaning level-mid" id="fri-meaning">序列期 (Serial)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-card" style="border-left-color: #e74c3c;">
+        <div class="module-title">
+            5. 處理速度 (PSI)
+            <span style="font-size:0.8rem; color:#e74c3c;">滿分 50</span>
+        </div>
+        <div class="module-desc">
+            <strong>評分標準 (0-50)：</strong><br>
+            0-17: 錯漏字多/動作遲緩 (焦慮期)<br>
+            18-39: 速度尚可/正確率佳 (標準期)<br>
+            40-50: 高速自動化掃描 (自動化)
+        </div>
+        <div class="slider-container">
+            <input type="range" min="0" max="50" value="25" class="range-slider" id="psi-slider" oninput="updateScore('psi', this.value); saveToLocal();" style="background: linear-gradient(to right, #e74c3c 0%, #e74c3c 50%, #d3d3d3 50%);">
+            <div class="score-display-area">
+                <span class="current-score" id="psi-val" style="color:#e74c3c;">25</span>
+                <span class="score-meaning level-mid" id="psi-meaning">標準期 (Standard)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-area">
+        <button class="clear-btn" onclick="clearData()">🗑️ 清除/下一位</button>
+        <button class="generate-btn" onclick="generateReport()">生成評估報告</button>
+    </div>
+
+    <div id="report-section">
+        <div class="report-header">
+            <div>
+                <h2 style="margin:0;">一般智能資優鑑定面試評語表</h2>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:1.5rem; font-weight:bold;" id="report-name"></div>
+                <div style="font-size:0.9rem;" id="report-date"></div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:30px; background:#f9f9f9; padding:15px; border-radius:8px;">
+            <div class="stat-bar"><span class="stat-label">VCI 語文理解</span><div class="stat-track"><div class="stat-fill" id="bar-vci" style="width: 50%; background:#e67e22;"></div></div><span class="stat-val" id="text-vci">50%</span></div>
+            <div class="stat-bar"><span class="stat-label">VSI 視覺空間</span><div class="stat-track"><div class="stat-fill" id="bar-vsi" style="width: 50%; background:#8e44ad;"></div></div><span class="stat-val" id="text-vsi">50%</span></div>
+            <div class="stat-bar"><span class="stat-label">WMI 工作記憶</span><div class="stat-track"><div class="stat-fill" id="bar-wmi" style="width: 50%; background:#27ae60;"></div></div><span class="stat-val" id="text-wmi">50%</span></div>
+            <div class="stat-bar"><span class="stat-label">FRI 流體推理</span><div class="stat-track"><div class="stat-fill" id="bar-fri" style="width: 50%; background:#2980b9;"></div></div><span class="stat-val" id="text-fri">50%</span></div>
+            <div class="stat-bar"><span class="stat-label">PSI 處理速度</span><div class="stat-track"><div class="stat-fill" id="bar-psi" style="width: 50%; background:#e74c3c;"></div></div><span class="stat-val" id="text-psi">50%</span></div>
+            
+            <div style="text-align:right; font-weight:bold; margin-top:10px;">總分：<span id="total-score">50%</span></div>
+        </div>
+
+        <div class="report-block">
+            <div class="report-label">1. 優勢分析 (Strength Analysis)</div>
+            <div class="report-content" id="report-strength"></div>
+        </div>
+
+        <div class="report-block">
+            <div class="report-label">2. 弱點診斷與 2E 風險 (Weakness & 2E Check)</div>
+            <div class="report-content" id="report-weakness"></div>
+        </div>
+
+        <div class="report-block">
+            <div class="report-label">3. 錄取與分班建議 (Placement Suggestion)</div>
+            <div class="report-content" id="report-suggestion" style="font-weight:bold; color:var(--primary-color);"></div>
+        </div>
+        
+        <div style="margin-top:50px; border-top:1px dashed #ccc; padding-top:10px; font-size:0.8rem; color:#999; display:flex; justify-content:space-between;">
+            <span>面試官簽名：____________________</span>
+            <span>複核：____________________</span>
+        </div>
+    </div>
+
+    <div style="margin-top:30px; text-align:center;">
+        <button class="generate-btn" onclick="downloadPDF()" style="background-color:#27ae60;">📥 下載為 PDF</button>
+    </div>
+</div>
+
+<script>
+    document.getElementById('report-date').innerText = new Date().toLocaleDateString('zh-TW', {year: 'numeric', month: 'long', day: 'numeric'});
+
+    const MAX_SCORES = {
+        vci: 80, // Updated
+        vsi: 80, // Updated
+        fri: 80, 
+        wmi: 80, // Updated
+        psi: 50
+    };
+
+    const PERCENT_HIGH = 0.8; // 80%
+    const PERCENT_LOW = 0.35; // 35%
+    const STORAGE_KEY = 'gias_v3_data_updated'; // Changed key to avoid conflict with old data structure
+
+    // --- LocalStorage Functions ---
+    window.onload = function() {
+        loadFromLocal();
+    };
+
+    function saveToLocal() {
+        const data = {
+            name: document.getElementById('studentName').value,
+            vci: document.getElementById('vci-slider').value,
+            vsi: document.getElementById('vsi-slider').value,
+            fri: document.getElementById('fri-slider').value,
+            wmi: document.getElementById('wmi-slider').value,
+            psi: document.getElementById('psi-slider').value
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        
+        // Show saved status
+        const status = document.getElementById('status-msg');
+        status.style.display = 'block';
+        setTimeout(() => { status.style.display = 'none'; }, 1500);
+    }
+
+    function loadFromLocal() {
+        const savedData = localStorage.getItem(STORAGE_KEY);
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            document.getElementById('studentName').value = data.name || '';
+            document.getElementById('vci-slider').value = data.vci || 40;
+            document.getElementById('vsi-slider').value = data.vsi || 40;
+            document.getElementById('fri-slider').value = data.fri || 40;
+            document.getElementById('wmi-slider').value = data.wmi || 40;
+            document.getElementById('psi-slider').value = data.psi || 25;
+
+            // Trigger updates for UI colors and text
+            updateScore('vci', data.vci || 40);
+            updateScore('vsi', data.vsi || 40);
+            updateScore('fri', data.fri || 40);
+            updateScore('wmi', data.wmi || 40);
+            updateScore('psi', data.psi || 25);
+        }
+    }
+
+    function clearData() {
+        if(confirm("確定要清除目前資料並評測下一位學生嗎？")) {
+            localStorage.removeItem(STORAGE_KEY);
+            document.getElementById('studentName').value = '';
+            
+            // Reset to defaults
+            const defaults = { vci: 40, vsi: 40, fri: 40, wmi: 40, psi: 25 };
+            
+            document.getElementById('vci-slider').value = defaults.vci;
+            document.getElementById('vsi-slider').value = defaults.vsi;
+            document.getElementById('fri-slider').value = defaults.fri;
+            document.getElementById('wmi-slider').value = defaults.wmi;
+            document.getElementById('psi-slider').value = defaults.psi;
+
+            updateScore('vci', defaults.vci);
+            updateScore('vsi', defaults.vsi);
+            updateScore('fri', defaults.fri);
+            updateScore('wmi', defaults.wmi);
+            updateScore('psi', defaults.psi);
+
+            document.getElementById('report-section').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    // --- Existing Logic ---
+
+    function downloadPDF() {
+        let name = document.getElementById('studentName').value;
+        if (!name || name.trim() === '') {
+            alert("請先生成報告後再下載！");
+            return;
+        }
+
+        document.querySelector('header').style.display = 'none';
+        document.querySelector('.input-group').style.display = 'none';
+        document.querySelectorAll('.module-card').forEach(el => el.style.display = 'none');
+        document.querySelector('.action-area').style.display = 'none';
+        document.querySelector('button[onclick="downloadPDF()"]').style.display = 'none';
+        
+        document.getElementById('report-section').style.display = 'block';
+        window.print();
+        
+        setTimeout(() => {
+            document.querySelector('header').style.display = 'block';
+            document.querySelector('.input-group').style.display = 'block';
+            document.querySelectorAll('.module-card').forEach(el => el.style.display = 'block');
+            document.querySelector('.action-area').style.display = 'block';
+            document.querySelector('button[onclick="downloadPDF()"]').style.display = 'block';
+        }, 500);
+    }   
+
+    function updateScore(module, val) {
+        val = parseInt(val);
+        let max = MAX_SCORES[module];
+        document.getElementById(module + '-val').innerText = val;
+        
+        let color = '#555';
+        if(module === 'vci') color = '#e67e22';
+        if(module === 'vsi') color = '#8e44ad';
+        if(module === 'fri') color = '#2980b9';
+        if(module === 'wmi') color = '#27ae60';
+        if(module === 'psi') color = '#e74c3c';
+        
+        let percentage = (val / max) * 100;
+        document.getElementById(module + '-slider').style.background = 
+            `linear-gradient(to right, ${color} 0%, ${color} ${percentage}%, #d3d3d3 ${percentage}%)`;
+
+        let meaningEl = document.getElementById(module + '-meaning');
+        meaningEl.className = 'score-meaning';
+        
+        let texts = {
+            'vci': ['反應期', '功能期', '抽象期'],
+            'vsi': ['具體期', '操作期', '完形期'],
+            'fri': ['單維期', '序列期', '平行期'],
+            'wmi': ['溢出期', '分段期', '內化期'],
+            'psi': ['遲緩/焦慮', '標準期', '自動化']
+        };
+
+        if (percentage >= (PERCENT_HIGH * 100)) {
+            meaningEl.innerText = texts[module][2];
+            meaningEl.classList.add('level-high');
+        } else if (percentage > (PERCENT_LOW * 100)) {
+            meaningEl.innerText = texts[module][1];
+            meaningEl.classList.add('level-mid');
+        } else {
+            meaningEl.innerText = texts[module][0];
+            meaningEl.classList.add('level-low');
+        }
+    }
+
+    function generateReport() {
+        let name = document.getElementById('studentName').value;
+        if (!name) { alert("請輸入考生姓名！"); return; }
+
+        let vci = parseInt(document.getElementById('vci-slider').value);
+        let vsi = parseInt(document.getElementById('vsi-slider').value);
+        let fri = parseInt(document.getElementById('fri-slider').value);
+        let wmi = parseInt(document.getElementById('wmi-slider').value);
+        let psi = parseInt(document.getElementById('psi-slider').value);
+        let total = vci + vsi + fri + wmi + psi;
+        let totalMax = 370; // 80*4 + 50
+
+        // 計算各項百分比
+        let p_vci = Math.round((vci / MAX_SCORES.vci) * 100);
+        let p_vsi = Math.round((vsi / MAX_SCORES.vsi) * 100);
+        let p_fri = Math.round((fri / MAX_SCORES.fri) * 100);
+        let p_wmi = Math.round((wmi / MAX_SCORES.wmi) * 100);
+        let p_psi = Math.round((psi / MAX_SCORES.psi) * 100);
+        let p_total = Math.round((total / totalMax) * 100);
+
+        // UI Update: 更新進度條寬度與顯示文字為百分比
+        document.getElementById('bar-vci').style.width = p_vci + "%";
+        document.getElementById('bar-vsi').style.width = p_vsi + "%";
+        document.getElementById('bar-fri').style.width = p_fri + "%";
+        document.getElementById('bar-wmi').style.width = p_wmi + "%";
+        document.getElementById('bar-psi').style.width = p_psi + "%";
+        
+        // 文字更新為百分比
+        document.getElementById('text-vci').innerText = p_vci + "%";
+        document.getElementById('text-vsi').innerText = p_vsi + "%";
+        document.getElementById('text-fri').innerText = p_fri + "%";
+        document.getElementById('text-wmi').innerText = p_wmi + "%";
+        document.getElementById('text-psi').innerText = p_psi + "%";
+        
+        // 總分只顯示百分比
+        document.getElementById('total-score').innerText = `${p_total}%`;
+        document.getElementById('report-name').innerText = name;
+
+        // --- Logic Engine ---
+        let strengthText = "";
+        let weaknessText = "無顯著弱點結構。";
+        let suggestionText = "";
+
+        // Normalize scores to percentages (decimal 0.0 - 1.0) for logic comparison
+        let dp_vci = vci / MAX_SCORES.vci;
+        let dp_vsi = vsi / MAX_SCORES.vsi;
+        let dp_fri = fri / MAX_SCORES.fri;
+        let dp_wmi = wmi / MAX_SCORES.wmi;
+        let dp_psi = psi / MAX_SCORES.psi;
+
+        // 1. Strength Analysis
+        let strengths = [];
+        if (dp_vci >= PERCENT_HIGH) strengths.push("【語文理解】：概念定義精確，具備優異的後設認知與抽象概括力。");
+        if (dp_vsi >= PERCENT_HIGH) strengths.push("【視覺空間】：具備極佳的完形建構能力，能進行多角度的心理旋轉與空間規劃。");
+        if (dp_fri >= PERCENT_HIGH) strengths.push("【流體推理】：擅長處理多重邏輯變數，展現出演算法思維與系統分析潛能。");
+        if (dp_wmi >= PERCENT_HIGH) strengths.push("【工作記憶】：資訊暫存與重組效率極高，抗干擾能力強。");
+        if (dp_psi >= PERCENT_HIGH) strengths.push("【處理速度】：視覺掃描與手眼協調自動化程度高，具備高效率的認知產出。");
+        
+        if (strengths.length > 0) {
+            strengthText = strengths.join("<br>");
+        } else {
+            strengthText = "目前各分項能力尚未展現顯著的「抽象層次」優勢 (皆未達高標)。";
+        }
+
+        // 2. Weakness & 2E Diagnosis
+        let gai_percent = (dp_vci + dp_vsi + dp_fri) / 3;
+        let cpi_percent = (dp_wmi + dp_psi) / 2;
+        
+        if (gai_percent >= PERCENT_HIGH && cpi_percent <= (PERCENT_LOW + 0.15)) {
+             weaknessText = "【高度關注 - 2E 風險】：學生呈現典型的「高潛能、低效能」特徵。其思考與推理能力極佳，但受限於處理速度或工作記憶。這可能導致「思緒快但產出慢」的挫折感，建議進行進一步的專注力或讀寫障礙篩檢。";
+        } 
+        else if (dp_psi <= PERCENT_LOW) {
+            weaknessText = "【速度偏弱】：學生思考品質佳，但視覺掃描與動作輸出顯著緩慢，考試時可能面臨寫不完的壓力。";
+        }
+        else {
+            let scores_p = [dp_vci, dp_vsi, dp_fri, dp_wmi, dp_psi];
+            let max_p = Math.max(...scores_p);
+            let min_p = Math.min(...scores_p);
+            if ((max_p - min_p) >= 0.4) { // 40% difference
+                weaknessText = "【能力分布不均】：觀察到顯著的強弱項落差 (Scatter Profile)，建議針對弱項提供學習策略支持，避免影響整體表現。";
+            }
+        }
+
+        // 3. Placement Suggestion
+        let total_percent = total / totalMax;
+
+        if (total_percent >= 0.85) {
+             suggestionText = "【一般智能資優 (極優異)】：綜合指標均衡且頂尖，建議安置於強調跨領域整合與高挑戰性的資優方案。";
+        } else if (dp_vci >= PERCENT_HIGH || dp_fri >= PERCENT_HIGH || dp_vsi >= PERCENT_HIGH) {
+            let type = [];
+            if(dp_vci >= PERCENT_HIGH) type.push("語文");
+            if(dp_fri >= PERCENT_HIGH) type.push("數理/邏輯");
+            if(dp_vsi >= PERCENT_HIGH) type.push("空間/工程");
+            suggestionText = `【學術性向資優】：適合發展 ${type.join("/")} 領域，建議在優勢學科進行加深加廣。`;
+        } else {
+             suggestionText = "【未達鑑定標準】：建議回歸普通班課程，並針對強項進行差異化教學。";
+        }
+
+        document.getElementById('report-strength').innerHTML = strengthText;
+        document.getElementById('report-weakness').innerText = weaknessText;
+        document.getElementById('report-suggestion').innerText = suggestionText;
+
+        let reportSection = document.getElementById('report-section');
+        reportSection.style.display = 'block';
+        reportSection.scrollIntoView({behavior: "smooth"});
+    }
+</script>
+
+</body>
+</html>
