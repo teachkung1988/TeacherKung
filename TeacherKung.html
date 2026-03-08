@@ -253,10 +253,10 @@
 <script>
     const categories = ['vci', 'vsi', 'wmi'];
     
-    // 初始化按鈕
+    // 初始化按鈕（每題 2 分，20 題滿分 40）
     categories.forEach(cat => {
         const grid = document.getElementById(`grid-${cat}`);
-        for (let i = 1; i <= 40; i++) {
+        for (let i = 1; i <= 20; i++) {
             const btn = document.createElement('div');
             btn.className = 'q-btn';
             btn.setAttribute('data-score', '0'); 
@@ -286,8 +286,8 @@
     function calculateTotal(cat) {
         let total = 0;
         document.querySelectorAll(`#grid-${cat} .q-btn`).forEach(btn => total += parseInt(btn.getAttribute('data-score')));
-        // VCI/VSI/WMI 滿分皆 40（原始總分 80 ÷ 2）
-        document.getElementById(`score-${cat}`).innerText = Math.round(total / 2);
+        // 20 題 × 每題 2 分 = 滿分 40
+        document.getElementById(`score-${cat}`).innerText = total;
     }
 
     // Timer
